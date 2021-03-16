@@ -24,10 +24,13 @@ func (b *Talkiepi) Init() {
 
 func (b *Talkiepi) HandleEvents() {
 	for i := range b.EventQueue {
-		fmt.Println(i)
-		b.CurrentState = b.Transition(i)
-		fmt.Println("transition to state:", b.CurrentState)
-		b.HandleState()
+		fmt.Println("event: ", i)
+		newState := b.Transition(i)
+		fmt.Println("transition ", b.CurrentState, " -> ", newState)
+		if newState != b.CurrentState {
+			b.CurrentState = newState
+			b.HandleState()
+		}
 	}
 }
 

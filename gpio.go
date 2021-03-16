@@ -111,8 +111,8 @@ func listenToInput(eventQueue chan Event, watcher *gpio.Watcher, m map[uint]pinD
 			continue
 		}
 
-		fmt.Printf("read %d from gpio %d\n", value, pin)
-		fmt.Println("event: ", pin.event[value])
+		//fmt.Printf("read %d from gpio %d\n", value, pin)
+		//fmt.Println("event: ", pin.event[value])
 		eventQueue <- pin.event[value]
 	}
 }
