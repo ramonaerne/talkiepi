@@ -23,7 +23,7 @@ var pickupPin    = pinDef{8, gpio.ActiveLow, []Event{EVENT_PICKUP_START, EVENT_P
 var dialStartPin = pinDef{7, gpio.ActiveHigh, []Event{EVENT_DIAL_START, EVENT_DIAL_STOP}}
 var pinCollection = []pinDef { dialPin, pickupPin, dialStartPin}
 
-func watchPins(c chan Event) {
+func WatchPins(c chan Event) {
 	// we need to pull in rpio to pullup our button pin
 	if err := rpio.Open(); err != nil {
 		fmt.Println(err)
