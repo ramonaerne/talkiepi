@@ -2,11 +2,23 @@ package talkiepi
 
 import (
 	"fmt"
-	"time"
-
-	"github.com/dchote/gpio"
+	"github.com/brian-armstrong/gpio"
 	"github.com/stianeikeland/go-rpio"
 )
+
+type pinDef struct {
+        pin uint
+        logicLevel gpio.LogicLevel
+        eventEdge gpio.Edge
+        lastValue uint
+        event []Event
+}
+
+// gnd, 25, 8, 7 is order on raspi gpio header
+var dialPin      = pinDef{25,gpio.ActiveLow, gpio.EdgeRising, 0, []Event{EVENT_NOP, EVENT_DIAL_INC}}
+var pickupPin    = pinDef{8, gpio.ActiveHigh, gpio.EdgeBoth, 0, []Event{EVENT_PICKUP_STOP, EVENT_PICKUP_START}}
+var dialStartPin = pinDef{7, gpio.ActiveLow, gpio.EdgeBoth, 0, []Event{EVENT_DIAL_STOP, EVENT_DIAL_START}}
+
 
 func (b *Talkiepi) initGPIO() {
 	// we need to pull in rpio to pullup our button pin
@@ -18,35 +30,28 @@ func (b *Talkiepi) initGPIO() {
 		b.GPIOEnabled = true
 	}
 
-	ButtonPinPullUp := rpio.Pin(ButtonPin)
-	ButtonPinPullUp.PullUp()
+        // setup pins
+        pinCollection := []pinDef { dialPin, pickupPin, dialStartPin}
+        m := make(map[uint]pinDef)
 
-	rpio.Close()
+        // set pullup via rpio package  
+        // TODO: this fails once for every pin after boot
+        for _, p := range pinCollection {
+                m[p.pin] = p
+                rpio.PullMode(rpio.Pin(p.pin), rpio.PullUp)
+        }
+        rpio.Close()
 
-	// unfortunately the gpio watcher stuff doesnt work for me in this context, so we have to poll the button instead
-	b.Button = gpio.NewInput(ButtonPin)
-	go func() {
-		for {
-			currentState, err := b.Button.Read()
+        //      var wg sync.WaitGroup
+        //      defer wg.Done()
 
-			if currentState != b.ButtonState && err == nil {
-				b.ButtonState = currentState
+        watcher := gpio.NewWatcher()
+        for _, p := range pinCollection {
+                watcher.AddPinWithEdgeAndLogic(p.pin, gpio.EdgeBoth, p.logicLevel)
+        }
 
-				if b.Stream != nil {
-					if b.ButtonState == 1 {
-						fmt.Printf("Button is released\n")
-						b.TransmitStop()
-					} else {
-						fmt.Printf("Button is pressed\n")
-						b.TransmitStart()
-					}
-				}
-
-			}
-
-			time.Sleep(500 * time.Millisecond)
-		}
-	}()
+	b.EventQueue = make(chan Event)
+	go listenToInput(b.EventQueue, watcher, m)
 
 	// then we can do our gpio stuff
 	b.OnlineLED = gpio.NewOutput(OnlineLEDPin, false)
@@ -78,4 +83,36 @@ func (b *Talkiepi) LEDOffAll() {
 	b.LEDOff(b.OnlineLED)
 	b.LEDOff(b.ParticipantsLED)
 	b.LEDOff(b.TransmitLED)
+}
+
+func listenToInput(eventQueue chan Event, watcher *gpio.Watcher, m map[uint]pinDef) {
+	for {
+		pinNum, value := watcher.Watch()
+		pin, present := m[pinNum]
+
+		// skip unwatched events, this shouldn't happen
+		if !present {
+			continue;
+		}
+
+		// debounce logic, trigger watcher on both edges
+		// but only trigger events when value toggled (and event edge is desired)
+		if pin.lastValue == value {
+			 continue;
+		}
+		pin.lastValue = value
+		m[pinNum] = pin
+
+		// skip non-events
+		switch {
+		case pin.eventEdge == gpio.EdgeRising && value == 0:
+			continue
+		case pin.eventEdge == gpio.EdgeFalling && value == 1:
+			continue
+		}
+
+		fmt.Printf("read %d from gpio %d\n", value, pin)
+		fmt.Println("event: ", pin.event[value])
+		eventQueue <- pin.event[value]
+	}
 }

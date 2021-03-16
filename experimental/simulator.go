@@ -124,8 +124,8 @@ func (s* State) Handle() {
 func main() {
 	fmt.Println("test")
 	event_queue := make(chan Event)
-	go keyReader(event_queue)
-
+	//go keyReader(event_queue)
+	go WatchPins(event_queue)
 	s := State(STATE_IDLE)
 	for i := range event_queue {
 		fmt.Println(i)

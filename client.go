@@ -16,9 +16,19 @@ func (b *Talkiepi) Init() {
 	b.Config.Attach(gumbleutil.AutoBitrate)
 	b.Config.Attach(b)
 
+	b.CurrentState = STATE_IDLE
 	b.initGPIO()
-
+	go b.HandleEvents()
 	b.Connect()
+}
+
+func (b *Talkiepi) HandleEvents() {
+	for i := range b.EventQueue {
+		fmt.Println(i)
+		b.CurrentState = b.Transition(i)
+		fmt.Println("transition to state:", b.CurrentState)
+		b.HandleState()
+	}
 }
 
 func (b *Talkiepi) CleanUp() {
@@ -77,6 +87,10 @@ func (b *Talkiepi) ResetStream() {
 	time.Sleep(50 * time.Millisecond)
 
 	b.OpenStream()
+}
+
+func (b *Talkiepi) SendMessage(message string) {
+	b.Client.Self.Channel.Send(message, true)
 }
 
 func (b *Talkiepi) TransmitStart() {

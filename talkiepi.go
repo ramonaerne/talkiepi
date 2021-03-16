@@ -3,7 +3,7 @@ package talkiepi
 import (
 	"crypto/tls"
 
-	"github.com/dchote/gpio"
+	"github.com/brian-armstrong/gpio"
 	"github.com/dchote/gumble/gumble"
 	"github.com/dchote/gumble/gumbleopenal"
 )
@@ -13,8 +13,39 @@ const (
 	OnlineLEDPin       uint = 18
 	ParticipantsLEDPin uint = 23
 	TransmitLEDPin     uint = 24
-	ButtonPin          uint = 25
+	ButtonPin          uint = 21
 )
+
+const (
+	ASSIGNED_NUMBER = 7
+)
+
+type Event int
+const (
+	EVENT_NOP = iota
+	EVENT_PICKUP_START
+	EVENT_PICKUP_STOP
+	EVENT_DIAL_START
+	EVENT_DIAL_STOP
+	EVENT_RING_RECEIVE
+	EVENT_DIAL_INC
+)
+
+func (e Event) String() string {
+	return [...]string{"EVENT_NOP", "EVENT_PICKUP_START", "EVENT_PICKUP_STOP", "EVENT_DIAL_START", "EVENT_DIAL_STOP", "EVENT_RING_RECEIVE", "EVENT_DIAL_INC"}[e]
+}
+
+type State int
+const (
+	STATE_IDLE = iota
+	STATE_CALL
+	STATE_DIAL
+	STATE_RING
+)
+
+func (s State) String() string {
+	return [...]string{"STATE_IDLE", "STATE_CALL", "STATE_DIAL", "STATE_RING"}[s]
+}
 
 type Talkiepi struct {
 	Config *gumble.Config
@@ -37,4 +68,8 @@ type Talkiepi struct {
 	TransmitLED     gpio.Pin
 	Button          gpio.Pin
 	ButtonState     uint
+
+	EventQueue      chan Event
+	CurrentState    State
+	DialCounter     int
 }
