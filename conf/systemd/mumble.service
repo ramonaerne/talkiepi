@@ -4,10 +4,10 @@ Requires = systemd-user-sessions.service network.target sound.target
 After = multi-user.target
 
 [Service]
-User = mumble  
-Group = mumble  
+User = talkkonnect  
+Group = talkkonnect
 Type = simple  
-ExecStart = /home/mumble/bin/talkiepi
+ExecStart = /home/talkkonnect/bin/talkiepi -server 192.168.1.30:64738 -password fablab -username zero01 -channel 7 -insecure
 Restart = always 
 RestartSec = 5
 

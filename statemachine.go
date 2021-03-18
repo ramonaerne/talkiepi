@@ -66,8 +66,7 @@ func (b* Talkiepi) HandleState() {
 		// st
 		//b.CleanUp()
 		b.TransmitStop()
-		b.ChangeChannel("ring")
-		//b.ChangeChannel(string(ASSIGNED_NUMBER))
+		b.ChangeChannel(dialToChannel(ASSIGNED_NUMBER))
 		fmt.Println("TODO: stop transmitting ")
 	case STATE_RING:
 		b.IsRingingChan = make(chan struct{})

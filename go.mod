@@ -13,6 +13,6 @@ require (
 	github.com/stianeikeland/go-rpio v4.2.0+incompatible
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07 // indirect
 	go.bug.st/serial.v1 v0.0.0-20180827123349-5f7892a7bb45 // indirect
-	gobot.io/x/gobot v1.15.0 // indirect
+	gobot.io/x/gobot v1.15.0
 	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4 // indirect
 )
