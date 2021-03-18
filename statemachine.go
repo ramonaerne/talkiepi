@@ -61,7 +61,7 @@ func (b* Talkiepi) HandleState() {
 		b.ChangeChannel(channel)
 		time.Sleep(time.Millisecond * 500)
 		b.SendMessage(RING_MESSAGE_CODE)
-		//b.TransmitStart()
+		b.TransmitStart()
 	case STATE_IDLE:
 		// st
 		//b.CleanUp()
