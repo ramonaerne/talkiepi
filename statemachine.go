@@ -6,9 +6,15 @@ import (
 	"strconv"
 )
 
+func dialToChannel(counter int) string {
+	// TODO find proper conversion if needed
+	return strconv.Itoa(counter)
+}
+
 func (b* Talkiepi) Transition(e Event) State {
 	switch e {
 	case EVENT_PICKUP_START:
+		b.DialCounter = ASSIGNED_NUMBER
 		return STATE_CALL
 	case EVENT_PICKUP_STOP:
 		return STATE_IDLE
@@ -41,19 +47,19 @@ func (b* Talkiepi) HandleState() {
 	switch b.CurrentState  {
 	case STATE_CALL:
 		// TODO switch to channel and send ring cmd if a call was dialed and not switched
-		channel := strconv.Itoa(b.DialCounter)
+		channel := dialToChannel(b.DialCounter)
 		fmt.Println("TODO: start transmitting if not already")
 		fmt.Println("entered channel ", channel)
 		// start transmitting probably instead of at launch
 		//b.Connect()
 		b.ChangeChannel(channel)
 		b.SendMessage("test")
-		//b.TransmitStart()
+		b.TransmitStart()
 	case STATE_IDLE:
 		// st
 		//b.CleanUp()
-		//b.TransmitStop()
-		//b.ChangeChannel(string(ASSIGNED_NUMBER))
+		b.TransmitStop()
+		b.ChangeChannel(string(ASSIGNED_NUMBER))
 		fmt.Println("TODO: stop transmitting ")
 	case STATE_RING:
 		fmt.Print("ring: ")

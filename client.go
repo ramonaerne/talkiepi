@@ -29,7 +29,9 @@ func (b *Talkiepi) HandleEvents() {
 		fmt.Println("transition ", b.CurrentState, " -> ", newState)
 		if newState != b.CurrentState {
 			b.CurrentState = newState
-			b.HandleState()
+			if !b.NotReally {
+				b.HandleState()
+			}
 		}
 	}
 }

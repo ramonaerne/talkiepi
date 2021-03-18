@@ -21,6 +21,7 @@ func main() {
 	insecure := flag.Bool("insecure", true, "skip server certificate verification")
 	certificate := flag.String("certificate", "", "PEM encoded certificate and private key")
 	channel := flag.String("channel", "talkiepi", "mumble channel to join by default")
+	notReally := flag.Bool("notReally", false, "skip state handler of gpio pins, just print")
 
 	flag.Parse()
 
@@ -29,6 +30,7 @@ func main() {
 		Config:      gumble.NewConfig(),
 		Address:     *server,
 		ChannelName: *channel,
+		NotReally: *notReally,
 	}
 
 	// if no username specified, lets just autogen a random one

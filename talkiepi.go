@@ -72,4 +72,6 @@ type Talkiepi struct {
 	EventQueue      chan Event
 	CurrentState    State
 	DialCounter     int
+
+	NotReally       bool
 }
