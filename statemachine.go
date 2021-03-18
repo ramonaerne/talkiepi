@@ -14,6 +14,9 @@ func dialToChannel(counter int) string {
 func (b* Talkiepi) Transition(e Event) State {
 	switch e {
 	case EVENT_PICKUP_START:
+		if b.CurrentState == STATE_RING {
+			close(b.IsRingingChan)
+		}
 		b.DialCounter = ASSIGNED_NUMBER
 		return STATE_CALL
 	case EVENT_PICKUP_STOP:
@@ -67,13 +70,19 @@ func (b* Talkiepi) HandleState() {
 		//b.ChangeChannel(string(ASSIGNED_NUMBER))
 		fmt.Println("TODO: stop transmitting ")
 	case STATE_RING:
-		fmt.Print("ring: ")
-		for b.CurrentState  == STATE_RING {
-			// TODO turn on bell
-			time.Sleep(1 * time.Second)
-			fmt.Print(".")
-		}
-		// TODO turn off bell
-		fmt.Println("done")
+		b.IsRingingChan = make(chan struct{})
+		go func(w chan struct{}) {
+			fmt.Print("ring: ")
+			b.RingEnable.High()
+			b.RingPwm.Enable(true)
+
+			select {
+			case <-w:
+			case <-time.After(RING_DURATION_SEC * time.Second):
+			}
+			b.RingEnable.Low()
+			b.RingPwm.Enable(false)
+			fmt.Println("stopped ringing")
+		}(b.IsRingingChan)
 	}
 }

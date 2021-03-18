@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/brian-armstrong/gpio"
 	"github.com/stianeikeland/go-rpio"
+	"gobot.io/x/gobot/sysfs"
 )
 
 type pinDef struct {
@@ -30,25 +31,25 @@ func (b *Talkiepi) initGPIO() {
 		b.GPIOEnabled = true
 	}
 
-        // setup pins
-        pinCollection := []pinDef { dialPin, pickupPin, dialStartPin}
-        m := make(map[uint]pinDef)
+	// setup pins
+	pinCollection := []pinDef { dialPin, pickupPin, dialStartPin}
+	m := make(map[uint]pinDef)
 
-        // set pullup via rpio package  
-        // TODO: this fails once for every pin after boot
-        for _, p := range pinCollection {
-                m[p.pin] = p
-                rpio.PullMode(rpio.Pin(p.pin), rpio.PullUp)
-        }
-        rpio.Close()
+	// set pullup via rpio package
+	// TODO: this fails once for every pin after boot
+	for _, p := range pinCollection {
+			m[p.pin] = p
+			rpio.PullMode(rpio.Pin(p.pin), rpio.PullUp)
+	}
+	rpio.Close()
 
-        //      var wg sync.WaitGroup
-        //      defer wg.Done()
+	//      var wg sync.WaitGroup
+	//      defer wg.Done()
 
-        watcher := gpio.NewWatcher()
-        for _, p := range pinCollection {
-                watcher.AddPinWithEdgeAndLogic(p.pin, gpio.EdgeBoth, p.logicLevel)
-        }
+	watcher := gpio.NewWatcher()
+	for _, p := range pinCollection {
+			watcher.AddPinWithEdgeAndLogic(p.pin, gpio.EdgeBoth, p.logicLevel)
+	}
 
 	b.EventQueue = make(chan Event)
 	go listenToInput(b.EventQueue, watcher, m)
@@ -57,6 +58,28 @@ func (b *Talkiepi) initGPIO() {
 	b.OnlineLED = gpio.NewOutput(OnlineLEDPin, false)
 	b.ParticipantsLED = gpio.NewOutput(ParticipantsLEDPin, false)
 	b.TransmitLED = gpio.NewOutput(TransmitLEDPin, false)
+
+	b.RingEnable = gpio.NewOutput(RingEnablePin, false)
+	// setup pwm pin
+	b.RingPwm = sysfs.NewPWMPin(RingPwmChannel)
+	err := b.RingPwm.Export()
+	if err != nil {
+		fmt.Println("pwm pin export failed")
+		b.GPIOEnabled = false
+		return
+	}
+	b.RingPwm.SetPeriod(RING_FREQ_NS) // [ns]
+	if err != nil {
+		fmt.Println("pwm SetPeriod failed")
+		b.GPIOEnabled = false
+		return
+	}
+	b.RingPwm.SetDutyCycle(RING_FREQ_NS / 2) // 50% [ns]
+	if err != nil {
+		fmt.Println("pwm SetDutyCycle failed")
+		b.GPIOEnabled = false
+		return
+	}
 }
 
 func (b *Talkiepi) LEDOn(LED gpio.Pin) {
@@ -98,7 +121,7 @@ func listenToInput(eventQueue chan Event, watcher *gpio.Watcher, m map[uint]pinD
 		// debounce logic, trigger watcher on both edges
 		// but only trigger events when value toggled (and event edge is desired)
 		if pin.lastValue == value {
-			 continue;
+			 continue
 		}
 		pin.lastValue = value
 		m[pinNum] = pin

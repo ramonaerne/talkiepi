@@ -11,5 +11,8 @@ require (
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/stianeikeland/go-rpio v4.2.0+incompatible
+	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07 // indirect
+	go.bug.st/serial.v1 v0.0.0-20180827123349-5f7892a7bb45 // indirect
+	gobot.io/x/gobot v1.15.0 // indirect
 	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4 // indirect
 )
