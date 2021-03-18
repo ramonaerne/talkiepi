@@ -29,7 +29,7 @@ func (b *Talkiepi) HandleEvents() {
 		fmt.Println("transition ", b.CurrentState, " -> ", newState)
 		if newState != b.CurrentState {
 			b.CurrentState = newState
-			if !b.NotReally {
+			if !b.NotReally && b.IsConnected {
 				b.HandleState()
 			}
 		}
@@ -193,6 +193,9 @@ func (b *Talkiepi) ParticipantLEDUpdate() {
 
 func (b *Talkiepi) OnTextMessage(e *gumble.TextMessageEvent) {
 	fmt.Printf("Message from %s: %s\n", e.Sender.Name, strings.TrimSpace(esc(e.Message)))
+	if strings.TrimSpace(esc(e.Message)) == RING_MESSAGE_CODE {
+		b.EventQueue <- EVENT_RING_RECEIVE
+	}
 }
 
 func (b *Talkiepi) OnUserChange(e *gumble.UserChangeEvent) {

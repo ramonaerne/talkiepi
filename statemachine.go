@@ -27,6 +27,9 @@ func (b* Talkiepi) Transition(e Event) State {
 		b.DialCounter++
 	case EVENT_DIAL_STOP:
 		if b.CurrentState == STATE_DIAL {
+			if b.NotReally {
+				fmt.Println("dialing: ", dialToChannel(b.DialCounter))
+			}
 			return STATE_CALL
 		}
 	case EVENT_RING_RECEIVE:
@@ -53,13 +56,15 @@ func (b* Talkiepi) HandleState() {
 		// start transmitting probably instead of at launch
 		//b.Connect()
 		b.ChangeChannel(channel)
-		b.SendMessage("test")
-		b.TransmitStart()
+		time.Sleep(time.Millisecond * 500)
+		b.SendMessage(RING_MESSAGE_CODE)
+		//b.TransmitStart()
 	case STATE_IDLE:
 		// st
 		//b.CleanUp()
 		b.TransmitStop()
-		b.ChangeChannel(string(ASSIGNED_NUMBER))
+		b.ChangeChannel("ring")
+		//b.ChangeChannel(string(ASSIGNED_NUMBER))
 		fmt.Println("TODO: stop transmitting ")
 	case STATE_RING:
 		fmt.Print("ring: ")
