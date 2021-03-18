@@ -6,6 +6,7 @@ import (
 	"github.com/brian-armstrong/gpio"
 	"github.com/dchote/gumble/gumble"
 	"github.com/dchote/gumble/gumbleopenal"
+	"gobot.io/x/gobot/sysfs"
 )
 
 // Raspberry Pi GPIO pin assignments (CPU pin definitions)
@@ -14,10 +15,15 @@ const (
 	ParticipantsLEDPin uint = 23
 	TransmitLEDPin     uint = 24
 	ButtonPin          uint = 21
+	RingEnablePin      uint = 16
+	RingPwmChannel     int = 0  // pin 12
 )
 
 const (
 	ASSIGNED_NUMBER = 7
+	RING_MESSAGE_CODE = "ring-on-your-phone-already"
+	RING_FREQ_NS = 20000000 // 50Hz
+	RING_DURATION_SEC = 5
 )
 
 type Event int
@@ -72,6 +78,10 @@ type Talkiepi struct {
 	EventQueue      chan Event
 	CurrentState    State
 	DialCounter     int
+
+	RingEnable      gpio.Pin
+	RingPwm         *sysfs.PWMPin
+	IsRingingChan   chan struct{}
 
 	NotReally       bool
 }
