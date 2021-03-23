@@ -2,8 +2,8 @@ package talkiepi
 
 import (
 	"fmt"
-	"time"
 	"strconv"
+	"time"
 )
 
 func dialToChannel(counter int) string {
@@ -11,7 +11,7 @@ func dialToChannel(counter int) string {
 	return strconv.Itoa(counter)
 }
 
-func (b* Talkiepi) Transition(e Event) State {
+func (b *Talkiepi) Transition(e Event) State {
 	switch e {
 	case EVENT_PICKUP_START:
 		if b.CurrentState == STATE_RING {
@@ -46,11 +46,10 @@ func (b* Talkiepi) Transition(e Event) State {
 	return b.CurrentState
 }
 
-
 // function allowed to block until state changes
 // is called asynchronously from event queue handler
-func (b* Talkiepi) HandleState() {
-	switch b.CurrentState  {
+func (b *Talkiepi) HandleState() {
+	switch b.CurrentState {
 	case STATE_CALL:
 		// TODO switch to channel and send ring cmd if a call was dialed and not switched
 		channel := dialToChannel(b.DialCounter)
@@ -60,7 +59,7 @@ func (b* Talkiepi) HandleState() {
 		//b.Connect()
 		b.ChangeChannel(channel)
 		time.Sleep(time.Millisecond * 500)
-		b.SendMessage(RING_MESSAGE_CODE)
+		b.SendMessage(RingMessageCode)
 		b.TransmitStart()
 	case STATE_IDLE:
 		// st
@@ -77,7 +76,7 @@ func (b* Talkiepi) HandleState() {
 
 			select {
 			case <-w:
-			case <-time.After(RING_DURATION_SEC * time.Second):
+			case <-time.After(RingDurationSec * time.Second):
 			}
 			b.RingEnable.Low()
 			b.RingPwm.Enable(false)

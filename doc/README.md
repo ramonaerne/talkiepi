@@ -18,6 +18,8 @@ As root on your Raspberry Pi (`sudo -i`), create a mumble user:
 adduser --disabled-password --disabled-login --gecos "" mumble
 usermod -a -G cdrom,audio,video,plugdev,users,dialout,dip,input,gpio mumble
 ```
+## Add PWM capability
+Add `dtoverlay=pwm` somewhere in your /boot/config.txt
 
 ## Install
 
@@ -27,7 +29,7 @@ apt-get install golang libopenal-dev libopus-dev git
 
 su mumble
 
-mkdir ~/gocode
+mk****dir ~/gocode
 mkdir ~/bin
 
 export GOPATH=/home/mumble/gocode

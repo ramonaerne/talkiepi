@@ -8,18 +8,17 @@ import (
 )
 
 type pinDef struct {
-        pin uint
-        logicLevel gpio.LogicLevel
-        eventEdge gpio.Edge
-        lastValue uint
-        event []Event
+	pin        uint
+	logicLevel gpio.LogicLevel
+	eventEdge  gpio.Edge
+	lastValue  uint
+	event      []Event
 }
 
 // gnd, 25, 8, 7 is order on raspi gpio header
-var dialPin      = pinDef{25,gpio.ActiveLow, gpio.EdgeRising, 0, []Event{EVENT_NOP, EVENT_DIAL_INC}}
-var pickupPin    = pinDef{8, gpio.ActiveHigh, gpio.EdgeBoth, 0, []Event{EVENT_PICKUP_STOP, EVENT_PICKUP_START}}
+var dialPin = pinDef{25, gpio.ActiveLow, gpio.EdgeRising, 0, []Event{EVENT_NOP, EVENT_DIAL_INC}}
+var pickupPin = pinDef{8, gpio.ActiveLow, gpio.EdgeBoth, 0, []Event{EVENT_PICKUP_STOP, EVENT_PICKUP_START}}
 var dialStartPin = pinDef{7, gpio.ActiveLow, gpio.EdgeBoth, 0, []Event{EVENT_DIAL_STOP, EVENT_DIAL_START}}
-
 
 func (b *Talkiepi) initGPIO() {
 	// we need to pull in rpio to pullup our button pin
@@ -32,14 +31,14 @@ func (b *Talkiepi) initGPIO() {
 	}
 
 	// setup pins
-	pinCollection := []pinDef { dialPin, pickupPin, dialStartPin}
+	pinCollection := []pinDef{dialPin, pickupPin, dialStartPin}
 	m := make(map[uint]pinDef)
 
 	// set pullup via rpio package
 	// TODO: this fails once for every pin after boot
 	for _, p := range pinCollection {
-			m[p.pin] = p
-			rpio.PullMode(rpio.Pin(p.pin), rpio.PullUp)
+		m[p.pin] = p
+		rpio.PullMode(rpio.Pin(p.pin), rpio.PullUp)
 	}
 	rpio.Close()
 
@@ -48,17 +47,13 @@ func (b *Talkiepi) initGPIO() {
 
 	watcher := gpio.NewWatcher()
 	for _, p := range pinCollection {
-			watcher.AddPinWithEdgeAndLogic(p.pin, gpio.EdgeBoth, p.logicLevel)
+		watcher.AddPinWithEdgeAndLogic(p.pin, gpio.EdgeBoth, p.logicLevel)
 	}
 
 	b.EventQueue = make(chan Event)
 	go listenToInput(b.EventQueue, watcher, m)
 
 	// then we can do our gpio stuff
-	b.OnlineLED = gpio.NewOutput(OnlineLEDPin, false)
-	b.ParticipantsLED = gpio.NewOutput(ParticipantsLEDPin, false)
-	b.TransmitLED = gpio.NewOutput(TransmitLEDPin, false)
-
 	b.RingEnable = gpio.NewOutput(RingEnablePin, false)
 	// setup pwm pin
 	b.RingPwm = sysfs.NewPWMPin(RingPwmChannel)
@@ -68,13 +63,13 @@ func (b *Talkiepi) initGPIO() {
 		b.GPIOEnabled = false
 		return
 	}
-	b.RingPwm.SetPeriod(RING_FREQ_NS) // [ns]
+	b.RingPwm.SetPeriod(RingFreqNs) // [ns]
 	if err != nil {
 		fmt.Println("pwm SetPeriod failed")
 		b.GPIOEnabled = false
 		return
 	}
-	b.RingPwm.SetDutyCycle(RING_FREQ_NS / 2) // 50% [ns]
+	b.RingPwm.SetDutyCycle(RingFreqNs / 2) // 50% [ns]
 	if err != nil {
 		fmt.Println("pwm SetDutyCycle failed")
 		b.GPIOEnabled = false
@@ -115,13 +110,13 @@ func listenToInput(eventQueue chan Event, watcher *gpio.Watcher, m map[uint]pinD
 
 		// skip unwatched events, this shouldn't happen
 		if !present {
-			continue;
+			continue
 		}
 
 		// debounce logic, trigger watcher on both edges
 		// but only trigger events when value toggled (and event edge is desired)
 		if pin.lastValue == value {
-			 continue
+			continue
 		}
 		pin.lastValue = value
 		m[pinNum] = pin

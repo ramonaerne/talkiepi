@@ -8,10 +8,10 @@ import (
 	"github.com/dchote/gumble/gumble"
 	_ "github.com/dchote/gumble/opus"
 	"github.com/ramonaerne/talkiepi"
+	pseudorand "math/rand"
 	"os"
 	"os/signal"
 	"syscall"
-	pseudorand "math/rand"
 )
 
 func main() {
@@ -28,10 +28,11 @@ func main() {
 
 	// Initialize
 	b := talkiepi.Talkiepi{
-		Config:      gumble.NewConfig(),
-		Address:     *server,
-		ChannelName: *channel,
-		NotReally: *notReally,
+		Config:         gumble.NewConfig(),
+		Address:        *server,
+		ChannelName:    *channel,
+		NotReally:      *notReally,
+		AssignedNumber: *assignedNumber,
 	}
 
 	// if no username specified, lets just autogen a random one

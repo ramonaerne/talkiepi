@@ -193,7 +193,7 @@ func (b *Talkiepi) ParticipantLEDUpdate() {
 
 func (b *Talkiepi) OnTextMessage(e *gumble.TextMessageEvent) {
 	fmt.Printf("Message from %s: %s\n", e.Sender.Name, strings.TrimSpace(esc(e.Message)))
-	if strings.TrimSpace(esc(e.Message)) == RING_MESSAGE_CODE {
+	if strings.TrimSpace(esc(e.Message)) == RingMessageCode {
 		b.EventQueue <- EVENT_RING_RECEIVE
 	}
 }
