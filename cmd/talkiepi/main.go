@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	pseudorand "math/rand"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 	certificate := flag.String("certificate", "", "PEM encoded certificate and private key")
 	channel := flag.String("channel", "talkiepi", "mumble channel to join by default")
 	notReally := flag.Bool("notReally", false, "skip state handler of gpio pins, just print")
-
+	assignedNumber := flag.Int("assignedNum", pseudorand.Intn(10), "assigned number for home channel")
 	flag.Parse()
 
 	// Initialize

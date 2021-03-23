@@ -20,7 +20,6 @@ const (
 )
 
 const (
-	ASSIGNED_NUMBER = 7
 	RING_MESSAGE_CODE = "ring-on-your-phone-already"
 	RING_FREQ_NS = 20000000 // 50Hz
 	RING_DURATION_SEC = 5
@@ -83,5 +82,6 @@ type Talkiepi struct {
 	RingPwm         *sysfs.PWMPin
 	IsRingingChan   chan struct{}
 
+	AssignedNumber  int
 	NotReally       bool
 }

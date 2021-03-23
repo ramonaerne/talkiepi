@@ -17,7 +17,7 @@ func (b* Talkiepi) Transition(e Event) State {
 		if b.CurrentState == STATE_RING {
 			close(b.IsRingingChan)
 		}
-		b.DialCounter = ASSIGNED_NUMBER
+		b.DialCounter = b.AssignedNumber
 		return STATE_CALL
 	case EVENT_PICKUP_STOP:
 		return STATE_IDLE
@@ -66,7 +66,7 @@ func (b* Talkiepi) HandleState() {
 		// st
 		//b.CleanUp()
 		b.TransmitStop()
-		b.ChangeChannel(dialToChannel(ASSIGNED_NUMBER))
+		b.ChangeChannel(dialToChannel(b.AssignedNumber))
 		fmt.Println("TODO: stop transmitting ")
 	case STATE_RING:
 		b.IsRingingChan = make(chan struct{})
