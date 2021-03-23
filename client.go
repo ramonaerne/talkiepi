@@ -38,7 +38,6 @@ func (b *Talkiepi) HandleEvents() {
 
 func (b *Talkiepi) CleanUp() {
 	b.Client.Disconnect()
-	b.LEDOffAll()
 }
 
 func (b *Talkiepi) Connect() {
@@ -105,9 +104,6 @@ func (b *Talkiepi) TransmitStart() {
 
 	b.IsTransmitting = true
 
-	// turn on our transmit LED
-	b.LEDOn(b.TransmitLED)
-
 	b.Stream.StartSource()
 }
 
@@ -118,8 +114,6 @@ func (b *Talkiepi) TransmitStop() {
 
 	b.Stream.StopSource()
 
-	b.LEDOff(b.TransmitLED)
-
 	b.IsTransmitting = false
 }
 
@@ -129,8 +123,6 @@ func (b *Talkiepi) OnConnect(e *gumble.ConnectEvent) {
 	b.ConnectAttempts = 0
 
 	b.IsConnected = true
-	// turn on our online LED
-	b.LEDOn(b.OnlineLED)
 
 	fmt.Printf("Connected to %s (%d)\n", b.Client.Conn.RemoteAddr(), b.ConnectAttempts)
 	if e.WelcomeMessage != nil {
@@ -150,11 +142,6 @@ func (b *Talkiepi) OnDisconnect(e *gumble.DisconnectEvent) {
 	}
 
 	b.IsConnected = false
-
-	// turn off our LEDs
-	b.LEDOff(b.OnlineLED)
-	b.LEDOff(b.ParticipantsLED)
-	b.LEDOff(b.TransmitLED)
 
 	if reason == "" {
 		fmt.Printf("Connection to %s disconnected, attempting again in 10 seconds...\n", b.Address)
@@ -184,10 +171,8 @@ func (b *Talkiepi) ParticipantLEDUpdate() {
 
 	if participantCount > 1 {
 		fmt.Printf("Channel '%s' has %d participants\n", b.Client.Self.Channel.Name, participantCount)
-		b.LEDOn(b.ParticipantsLED)
 	} else {
 		fmt.Printf("Channel '%s' has no other participants\n", b.Client.Self.Channel.Name)
-		b.LEDOff(b.ParticipantsLED)
 	}
 }
 

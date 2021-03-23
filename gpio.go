@@ -77,32 +77,6 @@ func (b *Talkiepi) initGPIO() {
 	}
 }
 
-func (b *Talkiepi) LEDOn(LED gpio.Pin) {
-	if b.GPIOEnabled == false {
-		return
-	}
-
-	LED.High()
-}
-
-func (b *Talkiepi) LEDOff(LED gpio.Pin) {
-	if b.GPIOEnabled == false {
-		return
-	}
-
-	LED.Low()
-}
-
-func (b *Talkiepi) LEDOffAll() {
-	if b.GPIOEnabled == false {
-		return
-	}
-
-	b.LEDOff(b.OnlineLED)
-	b.LEDOff(b.ParticipantsLED)
-	b.LEDOff(b.TransmitLED)
-}
-
 func listenToInput(eventQueue chan Event, watcher *gpio.Watcher, m map[uint]pinDef) {
 	for {
 		pinNum, value := watcher.Watch()
