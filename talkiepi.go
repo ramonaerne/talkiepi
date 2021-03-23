@@ -11,7 +11,7 @@ import (
 
 // Raspberry Pi GPIO pin assignments (CPU pin definitions)
 const (
-	RingEnablePin   uint = 16
+	RingEnablePin   uint = 23
 	RingPwmChannel  int  = 0 // pin 18
 	RingMessageCode      = "ring-on-your-phone-already"
 	RingFreqNs           = 20000000 // 50Hz

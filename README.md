@@ -18,19 +18,49 @@ I have put together an install guide [here](doc/README.md).
 
 ## GPIO
 
+```
+J8:                        Connect to the phone circuit:
+   3V3  (1) (2)  5V        
+ GPIO2  (3) (4)  5V    
+ GPIO3  (5) (6)  GND   
+ GPIO4  (7) (8)  GPIO14
+   GND  (9) (10) GPIO15
+GPIO17 (11) (12) GPIO18    -> ringPwm 
+GPIO27 (13) (14) GND       -> GND to ring circuit
+GPIO22 (15) (16) GPIO23    -> ringEnable
+   3V3 (17) (18) GPIO24
+GPIO10 (19) (20) GND       -> GND to all button circuits below
+ GPIO9 (21) (22) GPIO25    -> dialpin
+GPIO11 (23) (24) GPIO8     -> pickup
+   GND (25) (26) GPIO7     -> dialStartStop
+ GPIO0 (27) (28) GPIO1 
+ GPIO5 (29) (30) GND   
+ GPIO6 (31) (32) GPIO12
+GPIO13 (33) (34) GND   
+GPIO19 (35) (36) GPIO16
+GPIO26 (37) (38) GPIO20
+   GND (39) (40) GPIO21
+```
+
 You can edit your pin assignments in `talkiepi.go`
 ```go
 const (
-	OnlineLEDPin       uint = 18
-	ParticipantsLEDPin uint = 23
-	TransmitLEDPin     uint = 24
-	ButtonPin          uint = 25
+	RingEnablePin   uint = 23
+	RingPwmChannel  int  = 0 // pin 18
+	...
 )
 ```
+and `gpio.go`
+```go
+var dialPin = pinDef{25, gpio.ActiveLow, gpio.EdgeRising, 0, []Event{EVENT_NOP, EVENT_DIAL_INC}}
+var pickupPin = pinDef{8, gpio.ActiveLow, gpio.EdgeBoth, 0, []Event{EVENT_PICKUP_STOP, EVENT_PICKUP_START}}
+var dialStartPin = pinDef{7, gpio.ActiveLow, gpio.EdgeBoth, 0, []Event{EVENT_DIAL_STOP, EVENT_DIAL_START}}
 
-Here is a basic schematic of how I am currently controlling the LEDs and pushbutton:
+```
 
-![schematic](doc/gpio_diagram.png "GPIO Diagram")
+<!-- Here is a basic schematic of how I am currently controlling the LEDs and pushbutton:
+
+![schematic](doc/gpio_diagram.png "GPIO Diagram") -->
 
 
 ## Pi Zero Fixes
