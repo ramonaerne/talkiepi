@@ -12,6 +12,12 @@ I will be posting a blog post shortly with a full component list and build guide
 
 
 ## Installing talkiepi
+Run the following command as the root user
+```
+su -i
+./update-talkiepi.sh
+```
+which does the same as the guide below.
 
 I have put together an install guide [here](doc/README.md).
 
