@@ -11,21 +11,31 @@ if [ ! -d /home/mumble ]; then
     apt-get install golang libopenal-dev libopus-dev git
 fi
 
-sudo -i -u mumble bash << EOF
-mkdir ~/gocode
-mkdir ~/bin   
 export GOPATH=/home/mumble/gocode
 export GOBIN=/home/mumble/bin
+
+sudo -u mumble bash << EOF
+mkdir -p $GOPATH
+mkdir -p $GOBIN
+echo "path: $GOPATH"
 cd $GOPATH
 pwd
-if [ ! -d src/github.com/ramonaerne/talkiepi/ ]; then
-    go get github.com/ramonaerne/talkiepi
+if [ ! -d $GOPATH/src/github.com/ramonaerne/talkiepi/ ]; then
+    echo "go get github.com/ramonaerne/talkiepi"
 fi
 cd $GOPATH/src/github.com/ramonaerne/talkiepi
 git pull
-go build -o /home/mumble/bin/talkiepi cmd/talkiepi/main.go 
+go build -o $GOBIN/talkiepi cmd/talkiepi/main.go
 exit
 EOF
+
+if [ ! -f /boot/mumble_env.sh ]; then
+	cat << EOF
+No /boot/mumble_env.sh exists, placing default file from repo.
+Make sure to adapt to your configuration!
+EOF
+	cp /home/mumble/gocode/src/github.com/ramonaerne/talkiepi/conf/systemd/mumble_env.sh /boot/
+fi
 
 cp /home/mumble/gocode/src/github.com/ramonaerne/talkiepi/conf/systemd/mumble.service /etc/systemd/system/mumble.service
 systemctl enable mumble.service
