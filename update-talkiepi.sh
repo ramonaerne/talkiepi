@@ -34,7 +34,7 @@ if [ ! -f /boot/mumble_env.sh ]; then
 No /boot/mumble_env.sh exists, placing default file from repo.
 Make sure to adapt to your configuration!
 EOF
-	cp /home/mumble/gocode/src/github.com/ramonaerne/talkiepi/conf/systemd/mumble_env.sh /boot/
+	cp /home/mumble/gocode/src/github.com/ramonaerne/talkiepi/conf/boot/mumble_env.sh /boot/
 fi
 
 cp /home/mumble/gocode/src/github.com/ramonaerne/talkiepi/conf/systemd/mumble.service /etc/systemd/system/mumble.service
